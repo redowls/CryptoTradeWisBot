@@ -149,6 +149,20 @@ overextension filter passed (including R:R ≥ `MIN_RR`). The decision is comput
 in-memory here; persisting it to `signals` with a 0–100 confidence score is
 Phase 6.
 
+## Score & store signals (Phase 6)
+
+Score each decision 0–100 across six independent factors (trend 30 / breakout 20
+/ volume 15 / trigger 15 / momentum 10 / volatility 10) and write it to the
+`signals` table with the per-factor breakdown as JSON:
+
+```bash
+python -m crypto_bot.analysis.scorer
+```
+
+`acted=1` only when the signal is BUY **and** the score ≥ `CONFIDENCE_THRESHOLD`
+(70). Below-threshold and non-BUY signals are still recorded (`acted=0`) for
+analysis. Rows are upserted on `(symbol, ts)`, so re-running is idempotent.
+
 ---
 
 ## Project layout
