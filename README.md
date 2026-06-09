@@ -98,6 +98,19 @@ cs.set("TELEGRAM_CHAT_ID", "your-chat-id")
 `ALPACA_BASE_URL` defaults to the **paper** endpoint and `LIVE_TRADING_ENABLED`
 to `false` — both stay that way until Phase 14.
 
+## Ingest market data (Phase 2)
+
+Fetch 1H/4H/1D crypto OHLCV for every active watchlist symbol into `market_bars`
+(incremental + idempotent — re-running refreshes the latest bar and adds no
+duplicates):
+
+```bash
+python -m crypto_bot.data.ingest
+```
+
+Historical crypto bars are a public Alpaca endpoint, so this works without keys;
+when real keys are configured they're used automatically.
+
 ---
 
 ## Project layout
