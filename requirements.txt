@@ -1,0 +1,30 @@
+# Crypto Swing-Trading Bot — runtime dependencies (Phase 0)
+# Pinned to compatible ranges; tighten before live (Phase 14).
+
+# Market data + execution
+alpaca-py>=0.30,<1.0
+
+# Database (Microsoft SQL Server)
+SQLAlchemy>=2.0,<3.0
+pyodbc>=5.1,<6.0
+
+# Indicators / data handling
+# NOTE: summary.md allows "pandas-ta (or ta) — or hand-rolled". We use `ta`:
+# pandas-ta's published builds require Python >=3.12 and break under numpy 2.x,
+# whereas `ta` installs cleanly on 3.11. Indicator math may also be hand-rolled
+# in Phase 3 for full control.
+pandas>=2.2,<3.0
+numpy>=1.26,<3.0
+ta>=0.11,<1.0
+
+# Alerts
+python-telegram-bot>=21.0,<22.0
+
+# Scheduling
+APScheduler>=3.10,<4.0
+
+# Config
+python-dotenv>=1.0,<2.0
+
+# Testing
+pytest>=8.0,<9.0

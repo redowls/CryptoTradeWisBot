@@ -1,0 +1,27 @@
+# Secrets / local config — the ONLY thing .env holds is the SQL Server connection string
+.env
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.eggs/
+build/
+dist/
+.venv/
+venv/
+
+# Logs
+logs/*.log
+logs/*.log.*
+
+# Test / tooling caches
+.pytest_cache/
+.mypy_cache/
+.coverage
+htmlcov/
+
+# OS / editor
+.DS_Store
+.idea/
+.vscode/

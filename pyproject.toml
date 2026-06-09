@@ -1,0 +1,14 @@
+[project]
+name = "crypto-trade-wis-bot"
+version = "0.1.0"
+description = "Crypto swing-trading bot: S/R breakouts + triple-MA confluence scoring, Alpaca + MS SQL Server."
+requires-python = ">=3.11"
+readme = "README.md"
+
+[tool.pytest.ini_options]
+testpaths = ["crypto_bot/tests"]
+python_files = ["test_*.py"]
+addopts = "-q"
+
+[tool.setuptools.packages.find]
+include = ["crypto_bot*"]
