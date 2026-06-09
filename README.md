@@ -133,6 +133,22 @@ Profile (POC/VAH/VAL), and persist the strongest supports/resistances to
 python -m crypto_bot.analysis.levels
 ```
 
+## Generate signals (Phase 5)
+
+Combine the triple-MA trend filter, breakout confirmation, and overextension
+filter into a BUY / HOLD / AVOID decision (tagged `BREAKOUT` / `MA` / `BOTH`)
+for each watchlist symbol's latest bar:
+
+```bash
+python -m crypto_bot.analysis.signal_engine
+```
+
+A BUY requires: long-set (21/34/55) trend filter bullish on the trend timeframe
+**AND** (a confirmed breakout **OR** the short-set 8/10/20 trigger) **AND** the
+overextension filter passed (including R:R ≥ `MIN_RR`). The decision is computed
+in-memory here; persisting it to `signals` with a 0–100 confidence score is
+Phase 6.
+
 ---
 
 ## Project layout
