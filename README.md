@@ -74,6 +74,30 @@ Run the (DB-free) smoke tests anytime:
 pytest
 ```
 
+## Initialize the database (Phase 1)
+
+Create all tables and seed config + the starter watchlist (idempotent — safe to
+re-run; it never overwrites existing values):
+
+```bash
+python -m crypto_bot.schema
+```
+
+This seeds all tunable parameters (summary.md §7) and the credential keys as
+**placeholders** (`REPLACE_ME`). No secrets live in source. Set the real values
+through `config_store` (the only module that touches `app_config`):
+
+```python
+from crypto_bot import config_store as cs
+cs.set("ALPACA_API_KEY", "your-paper-key", is_secret=True)
+cs.set("ALPACA_SECRET",  "your-paper-secret", is_secret=True)
+cs.set("TELEGRAM_BOT_TOKEN", "your-bot-token", is_secret=True)
+cs.set("TELEGRAM_CHAT_ID", "your-chat-id")
+```
+
+`ALPACA_BASE_URL` defaults to the **paper** endpoint and `LIVE_TRADING_ENABLED`
+to `false` — both stay that way until Phase 14.
+
 ---
 
 ## Project layout
