@@ -111,6 +111,18 @@ python -m crypto_bot.data.ingest
 Historical crypto bars are a public Alpaca endpoint, so this works without keys;
 when real keys are configured they're used automatically.
 
+## Compute indicators (Phase 3)
+
+Compute EMAs (8/10/20 + 21/34/55), ATR(14), RSI(14), ADX(14) and the 20-bar
+volume average from `market_bars`, caching warmed rows to `indicators`:
+
+```bash
+python -m crypto_bot.indicators.engine
+```
+
+Indicators are hand-rolled (standard EMA + Wilder smoothing) and validated
+against independent reference implementations in the test suite.
+
 ---
 
 ## Project layout
