@@ -55,6 +55,11 @@ DEFAULT_CONFIG: dict[str, tuple[str, bool]] = {
     "CHANDELIER": ("22,3.0", False),
     "DRAWDOWN_BRAKE_PCT": ("10", False),
     "TIME_STOP_BARS": ("24", False),
+    # --- Risk/sizing knobs added in Phase 7 (not in §7 table) ---
+    "STARTING_EQUITY": ("10000", False),       # paper starting equity if no snapshot yet
+    "KELLY_WIN_RATE": ("0.5", False),          # assumed p for kelly mode until backtest supplies it
+    "CORRELATION_THRESHOLD": ("0.7", False),   # |corr| above this = "correlated" for heat
+    "MAX_CORRELATED_POSITIONS": ("3", False),  # cap on concurrent correlated open positions
 }
 
 STARTER_WATCHLIST: list[str] = ["BTC/USD", "ETH/USD", "SOL/USD"]

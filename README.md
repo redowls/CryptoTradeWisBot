@@ -163,6 +163,21 @@ python -m crypto_bot.analysis.scorer
 (70). Below-threshold and non-BUY signals are still recorded (`acted=0`) for
 analysis. Rows are upserted on `(symbol, ts)`, so re-running is idempotent.
 
+## Position sizing (Phase 7)
+
+Turn an actionable signal into a quantity within hard risk caps:
+
+```bash
+python -m crypto_bot.risk.sizing
+```
+
+`qty = (equity × risk%) / (entry − stop)`, risk% scaled by conviction (tiered
+0.75/1.0/2.0% or fractional Kelly), capped at `MAX_RISK_PCT`. A trade is rejected
+if it would breach `MAX_CONCURRENT_POSITIONS`, `MAX_PORTFOLIO_HEAT_PCT`, the
+correlation cap, or if a position is already open in that symbol; risk is halved
+while drawdown exceeds `DRAWDOWN_BRAKE_PCT`. Equity comes from the latest
+`account_snapshots` row, falling back to `STARTING_EQUITY` (default 10,000).
+
 ---
 
 ## Project layout
