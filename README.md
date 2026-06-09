@@ -123,6 +123,16 @@ python -m crypto_bot.indicators.engine
 Indicators are hand-rolled (standard EMA + Wilder smoothing) and validated
 against independent reference implementations in the test suite.
 
+## Detect support/resistance (Phase 4)
+
+Detect confirmed swing pivots, cluster them into zones, compute the Volume
+Profile (POC/VAH/VAL), and persist the strongest supports/resistances to
+`sr_levels` (re-running refreshes the active set; stale levels are deactivated):
+
+```bash
+python -m crypto_bot.analysis.levels
+```
+
 ---
 
 ## Project layout
