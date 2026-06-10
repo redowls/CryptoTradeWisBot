@@ -233,6 +233,21 @@ at the target; and a **time stop** if price hasn't moved ~1% in favor within
 realized P&L + %, and `status='CLOSED'`. The manager is stateless — it replays
 bars since entry each cycle, so it recovers cleanly from restarts.
 
+## Daily summary & P&L (Phase 11)
+
+Aggregate `trades` into `daily_summary` (per-symbol rows + a portfolio-total row
+with `symbol` NULL) and write an `account_snapshots` row:
+
+```bash
+python -m crypto_bot.reporting.daily
+```
+
+Per symbol/day: buys (entries), sells (exits), realized P&L + % (return on the
+day's deployed capital), unrealized P&L on open positions (marked to the latest
+close), and win/loss counts. The snapshot records equity, cash, open positions,
+portfolio heat, and drawdown vs the running equity peak. Rows upsert on
+`(trade_date, symbol)`, so re-running the day is idempotent.
+
 ---
 
 ## Project layout
