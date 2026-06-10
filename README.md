@@ -199,6 +199,24 @@ python -m crypto_bot.backtest.engine
 > The defaults are industry rules of thumb, not validated optima; tune and
 > walk-forward before live.
 
+## Order execution (Phase 9) — paper only
+
+Place crypto orders on Alpaca and record them to `trades`:
+
+```bash
+python -m crypto_bot.execution.broker     # account summary + reconcile (no orders)
+```
+
+The bot trades on the **paper** endpoint unless `LIVE_TRADING_ENABLED` is true
+(default false). `place_order(...)` submits a market/limit order, records a
+`trades` row (with `alpaca_order_id`, `signal_id`, score, source, `is_paper`),
+and is **idempotent per signal** — a deterministic `client_order_id` plus a DB
+check prevent a signal from double-firing. Fills are handled asynchronously:
+`sync_fills()` populates `entry_price` once an order fills, and
+`reconcile_open_positions()` re-syncs the DB with Alpaca on startup (restart
+recovery). Alpaca crypto has no bracket orders, so the protective stop/target are
+recorded on the trade row and enforced by the bot (exit management, Phase 10).
+
 ---
 
 ## Project layout
