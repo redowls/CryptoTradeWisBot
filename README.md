@@ -302,6 +302,25 @@ equity, open positions, disk, and load to Telegram every 6 hours. **Live trading
 stays disabled** (`LIVE_TRADING_ENABLED=false`) until the go-live checklist —
 including Phase 15 key encryption — is complete.
 
+## Security hardening (Phase 15)
+
+Secrets in `app_config` (`is_secret=1`) are encrypted at rest with Fernet — all
+inside the `config_store` seam, transparent to the rest of the bot. The master
+key lives in the `CRYPTO_BOT_MASTER_KEY` env var (in `.env`), **never in the DB**.
+
+```bash
+python -m crypto_bot.config_store genkey     # generate a master key -> .env
+python -m crypto_bot.config_store migrate    # encrypt existing plaintext secrets
+python -m crypto_bot.config_store status     # show which secrets are encrypted
+```
+
+Encrypted values are stored as `enc::<token>`; legacy plaintext is read
+transparently so migration is gradual and idempotent. Reads of a secret are
+audit-logged (key name only, never the value). With a wrong/missing master key,
+decryption raises rather than leaking. Remaining operational hardening (in
+`GO_LIVE_CHECKLIST.md`): least-privilege SQL Server app user, master key in a
+real secret manager, and **rotate the Alpaca keys** before live funds.
+
 ---
 
 ## Project layout
