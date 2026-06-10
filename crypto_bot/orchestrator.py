@@ -42,7 +42,7 @@ from crypto_bot.db import get_session
 from crypto_bot.execution.broker import place_order
 from crypto_bot.execution.exits import manage_open_trades
 from crypto_bot.logging_setup import get_logger, setup_logging
-from crypto_bot.models import BotRun, Watchlist
+from crypto_bot.models import AccountSnapshot, BotRun, Trade, Watchlist
 from crypto_bot.reporting.daily import generate_daily_summary
 from crypto_bot.risk.sizing import RiskCfg, size_signal
 
@@ -187,14 +187,49 @@ def run_cycle_safe(**kwargs) -> dict | None:
         return None
 
 
+def heartbeat() -> bool:
+    """Send a Telegram health ping (last run, equity, open positions, disk/load)."""
+    import os
+    import shutil
+
+    with get_session() as session:
+        last = session.scalar(select(BotRun).order_by(BotRun.run_id.desc()).limit(1))
+        snap = session.scalar(select(AccountSnapshot)
+                              .order_by(AccountSnapshot.snapshot_id.desc()).limit(1))
+        open_n = len(session.scalars(select(Trade).where(Trade.status == "OPEN")).all())
+
+    du = shutil.disk_usage("/")
+    disk_free_pct = du.free / du.total * 100.0
+    try:
+        load1 = os.getloadavg()[0]
+    except OSError:
+        load1 = -1.0
+
+    text = (
+        "💓 <b>Heartbeat</b> CryptoTradeWisBot\n"
+        f"last run #{last.run_id if last else '-'} "
+        f"{last.status if last else '-'} "
+        f"(scanned {last.symbols_scanned if last else '-'})\n"
+        f"equity {float(snap.equity):,.2f} · open {open_n}\n"
+        f"disk free {disk_free_pct:.0f}% · load {load1:.2f}"
+        if snap else
+        "💓 <b>Heartbeat</b> CryptoTradeWisBot — no snapshot yet"
+    )
+    ok = tg.send_message(text)
+    log.info("Heartbeat sent=%s", ok)
+    return ok
+
+
 def build_scheduler():
-    """Blocking scheduler firing just after each bar close (HH:01 UTC)."""
+    """Blocking scheduler: cycle just after each bar close (HH:01 UTC) + 6h heartbeat."""
     from apscheduler.schedulers.blocking import BlockingScheduler
     from apscheduler.triggers.cron import CronTrigger
 
     sched = BlockingScheduler(timezone="UTC")
     sched.add_job(run_cycle_safe, CronTrigger(minute=1), id="cycle",
                   max_instances=1, coalesce=True, misfire_grace_time=300)
+    sched.add_job(heartbeat, CronTrigger(hour="*/6", minute=5), id="heartbeat",
+                  max_instances=1, coalesce=True)
     return sched
 
 
@@ -204,6 +239,8 @@ def main():
     if cmd == "run":
         log.info("Starting hourly scheduler (HH:01 UTC). Ctrl-C to stop.")
         build_scheduler().start()
+    elif cmd == "heartbeat":
+        print("heartbeat sent:", heartbeat())
     elif cmd == "test":
         n = int(sys.argv[2]) if len(sys.argv) > 2 else 3
         for _ in range(n):

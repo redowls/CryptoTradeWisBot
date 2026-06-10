@@ -283,6 +283,25 @@ row with status `OK` / `PARTIAL` / `ERROR`, symbols scanned, and signals
 generated. For production, run `... orchestrator run` under systemd/supervisor,
 or invoke `... orchestrator once` from cron / a systemd timer at each bar close.
 
+## Deploy to a VPS (Phase 14)
+
+Run unattended in **paper** mode under systemd, with auto-restart and a Telegram
+heartbeat. See `deploy/DEPLOY.md` for full steps and `deploy/GO_LIVE_CHECKLIST.md`
+for the gate that must pass before live trading.
+
+```bash
+sudo cp deploy/cryptotradewisbot.service /etc/systemd/system/
+sudo systemctl daemon-reload
+sudo systemctl enable --now cryptotradewisbot
+systemctl status cryptotradewisbot --no-pager
+```
+
+`Restart=always` + `WantedBy=multi-user.target` make it crash- and reboot-safe.
+A heartbeat (`python -m crypto_bot.orchestrator heartbeat`) reports last run,
+equity, open positions, disk, and load to Telegram every 6 hours. **Live trading
+stays disabled** (`LIVE_TRADING_ENABLED=false`) until the go-live checklist —
+including Phase 15 key encryption — is complete.
+
 ---
 
 ## Project layout

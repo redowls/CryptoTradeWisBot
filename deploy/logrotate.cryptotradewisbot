@@ -1,0 +1,15 @@
+# Optional: OS-level rotation for the bot log.
+# NOTE: the app already rotates via Python's RotatingFileHandler (5 MB x 5).
+# Use this only if you prefer logrotate to manage it instead — if so, lower the
+# RotatingFileHandler to a no-op or it will double-rotate.
+#
+# Install: copy to /etc/logrotate.d/cryptotradewisbot
+/root/CryptoTradeWisBot/logs/*.log {
+    weekly
+    rotate 8
+    compress
+    delaycompress
+    missingok
+    notifempty
+    copytruncate
+}

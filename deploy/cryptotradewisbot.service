@@ -1,0 +1,22 @@
+[Unit]
+Description=CryptoTradeWisBot — crypto swing-trading bot (paper)
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=root
+WorkingDirectory=/root/CryptoTradeWisBot
+# .env holds only DATABASE_URL; all other config/secrets live in app_config.
+EnvironmentFile=/root/CryptoTradeWisBot/.env
+ExecStart=/root/CryptoTradeWisBot/.venv/bin/python -m crypto_bot.orchestrator run
+Restart=always
+RestartSec=10
+# Give a clean stop signal to APScheduler.
+KillSignal=SIGINT
+TimeoutStopSec=30
+# Lightweight resource guardrails.
+MemoryMax=1G
+
+[Install]
+WantedBy=multi-user.target
