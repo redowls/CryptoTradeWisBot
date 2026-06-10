@@ -118,12 +118,20 @@ def combine_signal(
     if bo.level is not None:
         stop = min(stop, bo.level - bo.buffer)
 
-    # Target: next resistance beyond the broken level (breakout) or nearest above close.
+    # Target: next resistance beyond the broken level (breakout) or nearest above
+    # close. If there is NO structural resistance overhead (e.g. a break into open
+    # space / new highs), fall back to a measured-move R-multiple target so the
+    # trade can still be evaluated (summary.md §5.10). A *nearby* ceiling that
+    # yields poor R:R is respected and will be rejected by the overextension check.
     if bo.level is not None:
         above = sorted(p for p in resistances if p > bo.level + bo.buffer)
     else:
         above = sorted(p for p in resistances if p > close)
-    target = above[0] if above else None
+    if above:
+        target = above[0]
+    else:
+        risk = close - stop
+        target = round(close + cfg.min_rr * risk, 8) if risk > 0 else None
 
     ovx = overextension_filter(
         close=close, level=bo.level, atr=atr, rsi=rsi, ref_ema=ema20,

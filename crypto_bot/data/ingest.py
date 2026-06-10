@@ -37,7 +37,7 @@ TIMEFRAMES: dict[str, TimeFrame] = {
 
 # How far back to backfill on the first run per timeframe (enough history for
 # 55-EMA / ADX / volume-profile warmup with margin).
-BACKFILL_DAYS: dict[str, int] = {"1H": 45, "4H": 180, "1D": 400}
+BACKFILL_DAYS: dict[str, int] = {"1H": 365, "4H": 540, "1D": 900}
 
 _MAX_RETRIES = 4
 _BACKOFF_BASE = 2.0  # seconds: 2, 4, 8 ...
@@ -110,18 +110,22 @@ def _upsert(session, symbol: str, timeframe: str, df) -> tuple[int, int]:
     if not rows:
         return (0, 0)
 
-    existing = {
-        b.ts: b
+    # Look up existing bars in chunks: SQL Server caps a query at 2100 parameters,
+    # so a large backfill (thousands of timestamps) must not go in one IN (...).
+    all_ts = list(rows.keys())
+    existing = {}
+    for i in range(0, len(all_ts), 1000):
+        chunk = all_ts[i:i + 1000]
         for b in session.scalars(
             select(MarketBar).where(
                 and_(
                     MarketBar.symbol == symbol,
                     MarketBar.timeframe == timeframe,
-                    MarketBar.ts.in_(list(rows.keys())),
+                    MarketBar.ts.in_(chunk),
                 )
             )
-        )
-    }
+        ):
+            existing[b.ts] = b
 
     inserted = updated = 0
     for ts, vals in rows.items():

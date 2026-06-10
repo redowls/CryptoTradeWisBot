@@ -178,6 +178,27 @@ correlation cap, or if a position is already open in that symbol; risk is halved
 while drawdown exceeds `DRAWDOWN_BRAKE_PCT`. Equity comes from the latest
 `account_snapshots` row, falling back to `STARTING_EQUITY` (default 10,000).
 
+## Backtest (Phase 8)
+
+Event-driven walk over the TRIGGER-timeframe history, feeding Phases 3–7 with
+only data up to each bar (no lookahead): indicators are causal, the trend
+timeframe is attached via a backward as-of join, S/R is rebuilt periodically from
+a bounded trailing window, entries fill at the next bar's open (slippage + fee),
+and exits are stop / target / Chandelier trail / time-stop. Results (overall
+metrics + expectancy by confidence bucket) are written to `backtest_results/`.
+
+```bash
+python -m crypto_bot.backtest.engine
+```
+
+> **Finding (default params, ~1y of 1H data across 19 crypto pairs, 102 trades):**
+> negative expectancy (win rate ~23%, avg −0.35R, profit factor ~0.40) and the
+> confidence buckets do **not** show higher buckets performing better. Per the
+> spec this is the signal to **re-tune and flatten the conviction multiplier**
+> before risking capital — exactly why this gate exists ahead of real orders.
+> The defaults are industry rules of thumb, not validated optima; tune and
+> walk-forward before live.
+
 ---
 
 ## Project layout

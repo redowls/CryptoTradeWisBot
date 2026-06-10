@@ -133,18 +133,20 @@ def _cache(session, symbol: str, timeframe: str, df: pd.DataFrame) -> int:
     if ready.empty:
         return 0
     timestamps = [ts.to_pydatetime() for ts in ready.index]
-    existing = {
-        r.ts: r
+    # Chunk the lookup: SQL Server caps a query at 2100 parameters.
+    existing = {}
+    for i in range(0, len(timestamps), 1000):
+        chunk = timestamps[i:i + 1000]
         for r in session.scalars(
             select(Indicator).where(
                 and_(
                     Indicator.symbol == symbol,
                     Indicator.timeframe == timeframe,
-                    Indicator.ts.in_(timestamps),
+                    Indicator.ts.in_(chunk),
                 )
             )
-        )
-    }
+        ):
+            existing[r.ts] = r
     n = 0
     for ts, row in zip(timestamps, ready.itertuples()):
         vals = {col: float(getattr(row, col)) for col in INDICATOR_COLUMNS}

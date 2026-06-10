@@ -60,6 +60,9 @@ DEFAULT_CONFIG: dict[str, tuple[str, bool]] = {
     "KELLY_WIN_RATE": ("0.5", False),          # assumed p for kelly mode until backtest supplies it
     "CORRELATION_THRESHOLD": ("0.7", False),   # |corr| above this = "correlated" for heat
     "MAX_CORRELATED_POSITIONS": ("3", False),  # cap on concurrent correlated open positions
+    # --- Backtest assumptions added in Phase 8 ---
+    "FEE_PCT": ("0.1", False),                 # taker fee per side, %
+    "SLIPPAGE_PCT": ("0.05", False),           # assumed slippage per side, %
 }
 
 STARTER_WATCHLIST: list[str] = ["BTC/USD", "ETH/USD", "SOL/USD"]
