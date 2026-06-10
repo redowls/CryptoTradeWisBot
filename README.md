@@ -217,6 +217,22 @@ check prevent a signal from double-firing. Fills are handled asynchronously:
 recovery). Alpaca crypto has no bracket orders, so the protective stop/target are
 recorded on the trade row and enforced by the bot (exit management, Phase 10).
 
+## Exit management (Phase 10)
+
+Manage open longs to completion:
+
+```bash
+python -m crypto_bot.execution.exits     # replay bars since entry, close exited trades
+```
+
+Exit rules (summary.md §5.10): hard stop at the initial stop; **partial
+scale-outs** — 50% at 1R (then move stop to breakeven), 25% at 2R, the final 25%
+trails; a **Chandelier** trailing stop (ratchet-only); a structural take-profit
+at the target; and a **time stop** if price hasn't moved ~1% in favor within
+`TIME_STOP_BARS`. On close the `trades` row gets the effective blended exit price,
+realized P&L + %, and `status='CLOSED'`. The manager is stateless — it replays
+bars since entry each cycle, so it recovers cleanly from restarts.
+
 ---
 
 ## Project layout
