@@ -265,6 +265,24 @@ suppresses identical messages within a short window. To enable delivery, message
 **@CryptoTradeWisBot** once, then run `... telegram resolve` to store your
 `TELEGRAM_CHAT_ID`.
 
+## Orchestration & scheduling (Phase 13)
+
+Run the whole pipeline (ingest → indicators → S/R → signal → score → size →
+execute → manage → daily summary), logging each run to `bot_runs`:
+
+```bash
+python -m crypto_bot.orchestrator once     # one cycle
+python -m crypto_bot.orchestrator run      # hourly scheduler (fires at HH:01 UTC)
+python -m crypto_bot.orchestrator test 3   # run N cycles back-to-back
+```
+
+Each cycle isolates per-symbol failures (one bad symbol can't kill the run), is
+guarded by a single-instance file lock (no overlapping runs), fires Telegram
+alerts at meaningful steps (never crashing the loop), and records a `bot_runs`
+row with status `OK` / `PARTIAL` / `ERROR`, symbols scanned, and signals
+generated. For production, run `... orchestrator run` under systemd/supervisor,
+or invoke `... orchestrator once` from cron / a systemd timer at each bar close.
+
 ---
 
 ## Project layout

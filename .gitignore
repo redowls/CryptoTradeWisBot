@@ -28,3 +28,6 @@ htmlcov/
 .DS_Store
 .idea/
 .vscode/
+
+# Orchestrator single-instance lock
+.orchestrator.lock
