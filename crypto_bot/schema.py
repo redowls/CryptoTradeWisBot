@@ -40,8 +40,10 @@ DEFAULT_CONFIG: dict[str, tuple[str, bool]] = {
     "RSI_PERIOD": ("14", False),
     "RSI_OVERBOUGHT": ("70", False),
     "ATR_PERIOD": ("14", False),
-    "ATR_STOP_MULT": ("2.5", False),
-    "MIN_RR": ("2.0", False),
+    # Tuned 2026-06-10 (was 2.5): backtest diagnosis showed the trail/stops were
+    # strangling winners; see commit message + backtest_results.
+    "ATR_STOP_MULT": ("3.0", False),
+    "MIN_RR": ("2.5", False),  # tuned (was 2.0)
     "EMA_SHORT": ("8,10,20", False),
     "EMA_LONG": ("21,34,55", False),
     "ADX_MIN": ("20", False),
@@ -52,9 +54,9 @@ DEFAULT_CONFIG: dict[str, tuple[str, bool]] = {
     "MAX_CONCURRENT_POSITIONS": ("5", False),
     "SIZING_MODE": ("tiered", False),
     "BREAKOUT_MODE": ("aggressive", False),
-    "CHANDELIER": ("22,3.0", False),
+    "CHANDELIER": ("22,6.0", False),  # tuned (was 22,3.0): 3xATR trail exited 55% of trades at avg -0.48R
     "DRAWDOWN_BRAKE_PCT": ("10", False),
-    "TIME_STOP_BARS": ("24", False),
+    "TIME_STOP_BARS": ("120", False),  # tuned (was 24): let swing trades develop
     # --- Risk/sizing knobs added in Phase 7 (not in §7 table) ---
     "STARTING_EQUITY": ("10000", False),       # paper starting equity if no snapshot yet
     "KELLY_WIN_RATE": ("0.5", False),          # assumed p for kelly mode until backtest supplies it
