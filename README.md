@@ -248,6 +248,23 @@ close), and win/loss counts. The snapshot records equity, cash, open positions,
 portfolio heat, and drawdown vs the running equity peak. Rows upsert on
 `(trade_date, symbol)`, so re-running the day is idempotent.
 
+## Telegram alerts (Phase 12)
+
+Send formatted alerts (new signal, entry, exit, daily summary, errors) to the
+configured chat:
+
+```bash
+python -m crypto_bot.alerts.telegram resolve   # discover & store chat id (message the bot first)
+python -m crypto_bot.alerts.telegram test      # send a test alert
+```
+
+Uses the raw Bot API over `requests` (synchronous, loop-safe). Token/chat id come
+from `config_store`. **Alerting never crashes the trading loop** — every send is
+wrapped and failures are logged and swallowed (returns False). A dedup throttle
+suppresses identical messages within a short window. To enable delivery, message
+**@CryptoTradeWisBot** once, then run `... telegram resolve` to store your
+`TELEGRAM_CHAT_ID`.
+
 ---
 
 ## Project layout
