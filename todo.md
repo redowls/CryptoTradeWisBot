@@ -10,6 +10,36 @@ verification note, no secrets hard-coded in source, and it runs without errors a
 
 ---
 
+## STATUS — updated 2026-06-11
+
+**ALL 16 PHASES (0–15) BUILT, TESTED, AND PUSHED.** 123 tests pass. Latest commit `d924179`.
+
+- ✅ **Phases 0–15 complete** — data ingest → indicators → S/R → signals → confidence score →
+  risk sizing → backtest → paper execution → exit management → daily P&L → Telegram alerts →
+  orchestration → VPS deploy artifacts → secrets encrypted at rest (Fernet, master key in env).
+- ✅ **Deployed & running** — systemd service `cryptotradewisbot` installed, enabled, **active**
+  since 2026-06-10. Runs a full cycle hourly (HH:01 UTC) + a 6-hourly Telegram heartbeat.
+  Paper account `PA3ZOVTGWZDO`. `LIVE_TRADING_ENABLED=false`.
+- ✅ **Telegram alerts live** (chat id stored; all event types verified delivered).
+- ✅ **Strategy tuned** (data-driven) — widened the Chandelier trail (3→6×ATR), wider stops
+  (2.5→3×ATR), `MIN_RR` 2.5, time stop 24→120 bars. Majors backtest improved from
+  PF 0.35 / −12% to **PF ~2.4 / +9%**; max drawdown 12%→4%.
+- ⏳ **Paper-validation period in progress** — bot is cycling and correctly producing **AVOID**
+  on all symbols (market down/sideways → trend filter not bullish → no trades yet). No bug:
+  it stands aside until a confirmed uptrend with a ≥70 setup appears.
+
+### Remaining before LIVE money (operator actions — see `deploy/GO_LIVE_CHECKLIST.md`)
+- [ ] Complete a meaningful paper-validation period and reconcile vs backtest assumptions.
+- [ ] Walk-forward / further-validate the tuned params (current sample is small).
+- [ ] **Rotate the Alpaca keys** (they were shared in chat during development).
+- [ ] Least-privilege SQL Server app user.
+- [ ] Only then flip `LIVE_TRADING_ENABLED=true` + live `ALPACA_BASE_URL`, start at minimum size.
+
+> Note: the dev/sandbox Alpaca paper engine accepts but does not *fill* crypto orders, so a filled
+> position can't be demonstrated here; the broker records on acceptance and reconciles fills async.
+
+---
+
 ## Phase 0 — Project setup & scaffolding
 **Goal:** a runnable skeleton with DB connectivity and logging.
 **Depends on:** nothing.
